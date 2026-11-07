@@ -1,0 +1,25 @@
+.gradle/
+.kotlin/
+build/
+app/build/
+local.properties
+
+# IDE files
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing material — never commit
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# Build outputs and logs
+*.apk
+*.aab
+*.log
+noodoe-logs-*.zip
