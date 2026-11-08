@@ -58,6 +58,15 @@ class CreationStudioActivity : AppCompatActivity() {
     private var barColor = "#f12b89"
     private var digitalColor = "#ffffff"
 
+    private var digitMode = DigitMode.STOCK
+    private var digitFont = DigitFont.CONDENSED_LIGHT
+    private var digitHeight = 90
+    private var digitScale = 80
+    private var digitThickness = -1
+    private var digitOffsetX = 0
+    private var digitOffsetY = 0
+    private var digitHard = true
+
     private var stockVerified = false
     private var updatingSpinners = false
 
@@ -191,6 +200,19 @@ class CreationStudioActivity : AppCompatActivity() {
         binding.barStyleSpinner.adapter = adapter((1..6).map { "Bar $it" })
         binding.speedModeSpinner.adapter = adapter(listOf("Analog", "Digital"))
         binding.unitSpinner.adapter = adapter(listOf("km/h", "mph"))
+        binding.digitModeSpinner.adapter = adapter(DigitMode.values().map { it.label })
+        binding.digitFontSpinner.adapter = adapter(DigitFont.values().map { it.label })
+        binding.digitResolutionSpinner.adapter = adapter(
+            DigitalDigitStyle.HEIGHTS.map { height ->
+                when (height) {
+                    90 -> "90px (stock)"
+                    180 -> "180px (2x)"
+                    270 -> "270px (3x)"
+                    360 -> "360px (4x)"
+                    else -> "${height}px"
+                }
+            }
+        )
 
         binding.handStyleSpinner.onItemSelectedListener = simpleListener { updateClockPreview() }
         binding.needleStyleSpinner.onItemSelectedListener = simpleListener { updateSpeedPreview() }
@@ -199,6 +221,30 @@ class CreationStudioActivity : AppCompatActivity() {
         binding.speedModeSpinner.onItemSelectedListener = simpleListener {
             updateSpeedModeVisibility()
             updateSpeedPreview()
+        }
+        binding.digitModeSpinner.onItemSelectedListener = simpleListener {
+            if (updatingSpinners) return@simpleListener
+            digitMode = DigitMode.values()[
+                binding.digitModeSpinner.selectedItemPosition.coerceIn(0, DigitMode.values().size - 1)
+            ]
+            onDigitTuningChanged()
+        }
+        binding.digitFontSpinner.onItemSelectedListener = simpleListener {
+            if (updatingSpinners) return@simpleListener
+            digitFont = DigitFont.values()[
+                binding.digitFontSpinner.selectedItemPosition.coerceIn(0, DigitFont.values().size - 1)
+            ]
+            onDigitTuningChanged()
+        }
+        binding.digitResolutionSpinner.onItemSelectedListener = simpleListener {
+            if (updatingSpinners) return@simpleListener
+            digitHeight = DigitalDigitStyle.HEIGHTS[
+                binding.digitResolutionSpinner.selectedItemPosition.coerceIn(
+                    0,
+                    DigitalDigitStyle.HEIGHTS.size - 1
+                )
+            ]
+            onDigitTuningChanged()
         }
         binding.unitSpinner.onItemSelectedListener = simpleListener {
             if (updatingSpinners) return@simpleListener
@@ -328,6 +374,42 @@ class CreationStudioActivity : AppCompatActivity() {
             )
         }
         binding.showBarSwitch.setOnCheckedChangeListener { _, _ -> updateSpeedPreview() }
+        loadDigitTuning()
+        binding.digitHardSwitch.setOnCheckedChangeListener { _, checked ->
+            if (updatingSpinners) return@setOnCheckedChangeListener
+            digitHard = checked
+            onDigitTuningChanged()
+        }
+        binding.digitScaleSlider.setOnSeekBarChangeListener(digitSliderListener(
+            onProgress = {
+                digitScale = 40 + it
+                binding.digitScaleLabel.text = "Digit size: $digitScale%"
+            },
+            onFinished = { onDigitTuningChanged() }
+        ))
+        binding.digitThicknessSlider.setOnSeekBarChangeListener(digitSliderListener(
+            onProgress = {
+                digitThickness = it - 2
+                binding.digitThicknessLabel.text =
+                    "Thickness: ${if (digitThickness > 0) "+$digitThickness" else "$digitThickness"}"
+            },
+            onFinished = { onDigitTuningChanged() }
+        ))
+        binding.digitOffsetXSlider.setOnSeekBarChangeListener(digitSliderListener(
+            onProgress = {
+                digitOffsetX = it - 30
+                binding.digitOffsetXLabel.text = "X offset: $digitOffsetX%"
+            },
+            onFinished = { onDigitTuningChanged() }
+        ))
+        binding.digitOffsetYSlider.setOnSeekBarChangeListener(digitSliderListener(
+            onProgress = {
+                digitOffsetY = it - 30
+                binding.digitOffsetYLabel.text = "Y offset: $digitOffsetY%"
+            },
+            onFinished = { onDigitTuningChanged() }
+        ))
+        binding.digitResetButton.setOnClickListener { resetDigitTuning() }
         binding.speedSlider.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -339,6 +421,116 @@ class CreationStudioActivity : AppCompatActivity() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
             }
         )
+    }
+
+    private fun digitStyle(): DigitalDigitStyle = DigitalDigitStyle(
+        mode = digitMode,
+        font = digitFont,
+        sourceHeight = digitHeight,
+        scalePercent = digitScale,
+        thickness = digitThickness,
+        offsetXPercent = digitOffsetX,
+        offsetYPercent = digitOffsetY,
+        hardEdges = digitHard
+    ).normalized()
+
+    private fun loadDigitTuning() {
+        digitMode = DigitMode.values().getOrElse(studioPrefs.getInt("digit_mode", 0)) {
+            DigitMode.STOCK
+        }
+        digitFont = DigitFont.values().getOrElse(studioPrefs.getInt("digit_font", 0)) {
+            DigitFont.CONDENSED_LIGHT
+        }
+        digitHeight = DigitalDigitStyle.nearestHeight(studioPrefs.getInt("digit_height", 90))
+        digitScale = studioPrefs.getInt("digit_scale", 80).coerceIn(40, 100)
+        digitThickness = studioPrefs.getInt("digit_thickness", -1).coerceIn(-2, 6)
+        digitOffsetX = studioPrefs.getInt("digit_offset_x", 0).coerceIn(-30, 30)
+        digitOffsetY = studioPrefs.getInt("digit_offset_y", 0).coerceIn(-30, 30)
+        digitHard = studioPrefs.getBoolean("digit_hard", true)
+
+        updatingSpinners = true
+        binding.digitModeSpinner.setSelection(DigitMode.values().indexOf(digitMode), false)
+        binding.digitFontSpinner.setSelection(DigitFont.values().indexOf(digitFont), false)
+        binding.digitResolutionSpinner.setSelection(
+            DigitalDigitStyle.HEIGHTS.indexOf(digitHeight),
+            false
+        )
+        binding.digitScaleSlider.progress = digitScale - 40
+        binding.digitThicknessSlider.progress = digitThickness + 2
+        binding.digitOffsetXSlider.progress = digitOffsetX + 30
+        binding.digitOffsetYSlider.progress = digitOffsetY + 30
+        binding.digitHardSwitch.isChecked = digitHard
+        updatingSpinners = false
+        updateDigitTuningUi()
+    }
+
+    private fun persistDigitTuning() {
+        studioPrefs.edit()
+            .putInt("digit_mode", DigitMode.values().indexOf(digitMode))
+            .putInt("digit_font", DigitFont.values().indexOf(digitFont))
+            .putInt("digit_height", digitHeight)
+            .putInt("digit_scale", digitScale)
+            .putInt("digit_thickness", digitThickness)
+            .putInt("digit_offset_x", digitOffsetX)
+            .putInt("digit_offset_y", digitOffsetY)
+            .putBoolean("digit_hard", digitHard)
+            .apply()
+    }
+
+    private fun onDigitTuningChanged() {
+        persistDigitTuning()
+        updateDigitTuningUi()
+        updateSpeedPreview()
+    }
+
+    private fun updateDigitTuningUi() {
+        binding.digitScaleLabel.text = "Digit size: $digitScale%"
+        binding.digitThicknessLabel.text =
+            "Thickness: ${if (digitThickness > 0) "+$digitThickness" else "$digitThickness"}"
+        binding.digitOffsetXLabel.text = "X offset: $digitOffsetX%"
+        binding.digitOffsetYLabel.text = "Y offset: $digitOffsetY%"
+        val textMode = digitMode == DigitMode.TEXT
+        binding.digitFontSpinner.isEnabled = textMode
+        binding.digitFontSpinner.alpha = if (textMode) 1f else 0.4f
+        binding.digitTuningNote.text = "Applied on next install: ${digitStyle().describe()}"
+    }
+
+    private fun resetDigitTuning() {
+        val defaults = DigitalDigitStyle.TUNING_DEFAULT
+        digitMode = defaults.mode
+        digitFont = defaults.font
+        digitHeight = defaults.sourceHeight
+        digitScale = defaults.scalePercent
+        digitThickness = defaults.thickness
+        digitOffsetX = defaults.offsetXPercent
+        digitOffsetY = defaults.offsetYPercent
+        digitHard = defaults.hardEdges
+        updatingSpinners = true
+        binding.digitModeSpinner.setSelection(DigitMode.values().indexOf(digitMode), false)
+        binding.digitFontSpinner.setSelection(DigitFont.values().indexOf(digitFont), false)
+        binding.digitResolutionSpinner.setSelection(
+            DigitalDigitStyle.HEIGHTS.indexOf(digitHeight),
+            false
+        )
+        binding.digitScaleSlider.progress = digitScale - 40
+        binding.digitThicknessSlider.progress = digitThickness + 2
+        binding.digitOffsetXSlider.progress = digitOffsetX + 30
+        binding.digitOffsetYSlider.progress = digitOffsetY + 30
+        binding.digitHardSwitch.isChecked = digitHard
+        updatingSpinners = false
+        onDigitTuningChanged()
+    }
+
+    private fun digitSliderListener(
+        onProgress: (Int) -> Unit,
+        onFinished: () -> Unit
+    ) = object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            if (fromUser) onProgress(progress)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+        override fun onStopTrackingTouch(seekBar: SeekBar?) = onFinished()
     }
 
     private fun speedBackgroundLabels(unit: String): List<String> =
@@ -398,6 +590,7 @@ class CreationStudioActivity : AppCompatActivity() {
         binding.centerColorButton.visibility = if (analog) View.VISIBLE else View.GONE
         binding.digitalOptions.visibility = if (analog) View.GONE else View.VISIBLE
         binding.speedModeNote.visibility = if (analog) View.GONE else View.VISIBLE
+        updateDigitTuningUi()
         // The 10-file batch was an experiment; the normal path is the v0.5.8
         // pipelined transfer with the cfg last. Keep the batch hidden.
         binding.digitalBatchButton.visibility = View.GONE
@@ -564,7 +757,8 @@ class CreationStudioActivity : AppCompatActivity() {
             digitalColor = CreationAssets.colorFromHex(digitalColor),
             showBar = binding.showBarSwitch.isChecked,
             composeMark = !speedBackgroundIncludesFace,
-            speed = binding.speedSlider.progress
+            speed = binding.speedSlider.progress,
+            digitStyle = digitStyle()
         )
         updateSpeedLabel(binding.speedSlider.progress)
     }
@@ -823,7 +1017,8 @@ class CreationStudioActivity : AppCompatActivity() {
                             barStyle = binding.barStyleSpinner.selectedItemPosition + 1,
                             barColor = barColor,
                             showBar = binding.showBarSwitch.isChecked,
-                            composeMark = !speedBackgroundIncludesFace
+                            composeMark = !speedBackgroundIncludesFace,
+                            digitStyle = digitStyle()
                         )
                     )
                 }
@@ -857,7 +1052,8 @@ class CreationStudioActivity : AppCompatActivity() {
                             barStyle = binding.barStyleSpinner.selectedItemPosition + 1,
                             barColor = barColor,
                             showBar = binding.showBarSwitch.isChecked,
-                            composeMark = !speedBackgroundIncludesFace
+                            composeMark = !speedBackgroundIncludesFace,
+                            digitStyle = digitStyle()
                         )
                     )
                 }

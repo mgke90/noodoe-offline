@@ -34,7 +34,8 @@ object SpeedometerCreationBuilder {
         val barStyle: Int = 3,
         val barColor: String = "#FFF12B89",
         val showBar: Boolean = false,
-        val composeMark: Boolean = true
+        val composeMark: Boolean = true,
+        val digitStyle: DigitalDigitStyle = DigitalDigitStyle()
     )
 
     fun build(context: Context, options: Options): CreationBundle {
@@ -84,7 +85,8 @@ object SpeedometerCreationBuilder {
             val glyphNames = ArrayList<String>()
             for (glyph in CreationAssets.digitBitmaps(
                 context,
-                CreationAssets.colorFromHex(options.digitalColor)
+                CreationAssets.colorFromHex(options.digitalColor),
+                options.digitStyle
             )) {
                 val bytes = CreationAssets.png(glyph)
                 glyph.recycle()

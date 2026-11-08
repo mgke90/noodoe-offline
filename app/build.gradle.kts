@@ -11,8 +11,8 @@ android {
         applicationId = "com.noodoe.offline"
         minSdk = 23
         targetSdk = 35
-        versionCode = 27
-        versionName = "0.6.0"
+        versionCode = 28
+        versionName = "0.6.1-digit-tune"
     }
 
     buildTypes {

@@ -411,6 +411,116 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Digit tuning"
+                        android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="The dashboard scales each glyph into its fixed widget. Use the preview and install the speedometer to tune size, shape and position without rebuilding the app."
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                    <Spinner
+                        android:id="@+id/digitModeSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+                    <Spinner
+                        android:id="@+id/digitFontSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+                    <Spinner
+                        android:id="@+id/digitResolutionSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/digitScaleLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Digit size: 80%"
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                    <SeekBar
+                        android:id="@+id/digitScaleSlider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="60"
+                        android:progress="40" />
+
+                    <TextView
+                        android:id="@+id/digitThicknessLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Thickness: -1"
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                    <SeekBar
+                        android:id="@+id/digitThicknessSlider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="8"
+                        android:progress="1" />
+
+                    <TextView
+                        android:id="@+id/digitOffsetXLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="X offset: 0%"
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                    <SeekBar
+                        android:id="@+id/digitOffsetXSlider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="60"
+                        android:progress="30" />
+
+                    <TextView
+                        android:id="@+id/digitOffsetYLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Y offset: 0%"
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                    <SeekBar
+                        android:id="@+id/digitOffsetYSlider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="60"
+                        android:progress="30" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/digitHardSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Hard 1-bit edges" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/digitResetButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="RESET DIGIT TUNING"
+                        app:cornerRadius="12dp" />
+
+                    <TextView
+                        android:id="@+id/digitTuningNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Speed bar"
                         android:textAppearance="?attr/textAppearanceBodyMedium" />

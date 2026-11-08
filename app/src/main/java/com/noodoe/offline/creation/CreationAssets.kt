@@ -147,26 +147,17 @@ object CreationAssets {
         }
 
     /**
-     * Official stock digital-speedometer glyphs. The firmware's built-in
-     * dashboard draws the `Default_Dashboard/speed_digit_N-fs8.raw` mask at
-     * its native 64x90 size. Scaling it to 125 px (1.39x) made the 1-bit
-     * edges look broken on the scooter, so the default is native height.
-     * The 21x28 Noto Sans preset is only a fallback.
+     * Digital-speedometer glyphs. The stock 64x90 mask is the safe default;
+     * the renderer can also produce a higher-resolution rendered typeface,
+     * with adjustable glyph scale, thickness and position. The dashboard
+     * scales the image into its fixed widget, so transparent padding around
+     * the glyph controls the visible size.
      */
-    fun digitBitmaps(context: Context, color: Int, height: Int = 90): List<Bitmap> {
-        return (0..9).map { digit ->
-            val source = load(context, "$ROOT/fonts/speed_digit_$digit.png")
-                ?: load(context, "$ROOT/fonts/notosans_$digit.png")
-                ?: Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-            val scale = height.toFloat() / source.height
-            val width = (source.width * scale).toInt().coerceAtLeast(1)
-            val scaled = Bitmap.createScaledBitmap(source, width, height, true)
-            if (scaled !== source) source.recycle()
-            val tinted = tint(scaled, color)
-            scaled.recycle()
-            tinted
-        }
-    }
+    fun digitBitmaps(
+        context: Context,
+        color: Int,
+        style: DigitalDigitStyle = DigitalDigitStyle()
+    ): List<Bitmap> = DigitalDigitRenderer.renderAll(context, style, color)
 
     fun colorFromHex(value: String): Int = try {
         Color.parseColor(value)
