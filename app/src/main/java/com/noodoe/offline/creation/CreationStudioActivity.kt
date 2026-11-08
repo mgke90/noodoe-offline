@@ -70,6 +70,8 @@ class CreationStudioActivity : AppCompatActivity() {
 
     private var stockVerified = false
     private var installInProgress = false
+    private var installLabel: String? = null
+    private var installStartedStatus: String = ""
     private var updatingSpinners = false
 
     private val studioPrefs by lazy {
@@ -150,7 +152,12 @@ class CreationStudioActivity : AppCompatActivity() {
                             studioPrefs.edit().putBoolean("stock_verified", true).apply()
                             applyStockGate()
                         }
-                        if (installInProgress && isTerminalCreationStatus(state.creationStatus)) {
+                        val currentLabel = installLabel
+                        if (installInProgress && currentLabel != null &&
+                            state.creationStatus != installStartedStatus &&
+                            state.creationStatus.startsWith(currentLabel) &&
+                            isTerminalCreationStatus(state.creationStatus)
+                        ) {
                             endInstall()
                         }
                     }
@@ -204,13 +211,17 @@ class CreationStudioActivity : AppCompatActivity() {
                 value.contains("already present")
     }
 
-    private fun beginInstall() {
+    private fun beginInstall(label: String) {
         installInProgress = true
+        installLabel = label
+        installStartedStatus = controller.state.value.creationStatus
         applyStockGate()
     }
 
     private fun endInstall() {
         installInProgress = false
+        installLabel = null
+        installStartedStatus = ""
         applyStockGate()
     }
 
@@ -971,7 +982,12 @@ class CreationStudioActivity : AppCompatActivity() {
     }
 
     private fun installClock(stock: Boolean, minimal: Boolean = false) {
-        beginInstall()
+        val label = when {
+            minimal -> "stock clock minimal test"
+            stock -> "stock clock test"
+            else -> "custom clock"
+        }
+        beginInstall(label)
         binding.studioStatus.text = "Building clock bundle…"
         lifecycleScope.launch {
             val bundle = try {
@@ -1002,14 +1018,7 @@ class CreationStudioActivity : AppCompatActivity() {
             }
             binding.studioStatus.text =
                 "Starting upload (${bundle.files.size} files, pipelined)…"
-            controller.installCreation(
-                bundle,
-                when {
-                    minimal -> "stock clock minimal test"
-                    stock -> "stock clock test"
-                    else -> "custom clock"
-                }
-            )
+            controller.installCreation(bundle, label)
         }
     }
 
@@ -1036,7 +1045,8 @@ class CreationStudioActivity : AppCompatActivity() {
     }
 
     private fun installDigitalBatched() {
-        beginInstall()
+        val label = "digital speedometer batched"
+        beginInstall(label)
         binding.studioStatus.text = "Building digital speedometer bundle…"
         lifecycleScope.launch {
             val bundle = try {
@@ -1068,12 +1078,14 @@ class CreationStudioActivity : AppCompatActivity() {
                 return@launch
             }
             binding.studioStatus.text = "Starting old batched digital upload (diagnostic only)…"
-            controller.installCreationBatched(bundle, "digital speedometer batched")
+            controller.installCreationBatched(bundle, label)
         }
     }
 
     private fun installSpeedometer() {
-        beginInstall()
+        val analog = binding.speedModeSpinner.selectedItemPosition == 0
+        val label = if (analog) "speedometer analog" else "speedometer digital"
+        beginInstall(label)
         binding.studioStatus.text = "Building speedometer bundle…"
         lifecycleScope.launch {
             val bundle = try {
@@ -1084,7 +1096,7 @@ class CreationStudioActivity : AppCompatActivity() {
                             background = speedBackground,
                             unit = currentUnit(),
                             maxSpeed = selectedMaxSpeed(),
-                            analog = binding.speedModeSpinner.selectedItemPosition == 0,
+                            analog = analog,
                             markStyle = binding.markStyleSpinner.selectedItemPosition + 1,
                             markColor = markColor,
                             needleStyle = binding.needleStyleSpinner.selectedItemPosition + 1,
@@ -1106,14 +1118,7 @@ class CreationStudioActivity : AppCompatActivity() {
             }
             binding.studioStatus.text =
                 "Starting speedometer upload (${bundle.files.size} files, pipelined)…"
-            controller.installCreation(
-                bundle,
-                if (binding.speedModeSpinner.selectedItemPosition == 0) {
-                    "speedometer analog"
-                } else {
-                    "speedometer digital"
-                }
-            )
+            controller.installCreation(bundle, label)
         }
     }
 
