@@ -552,16 +552,30 @@ class NoodoeController(context: Context) {
     }
 
     private fun ensureTransferSessionLocked(force: Boolean = false): NoodoeSession {
-        var active = session
-        if (force ||
-            active == null ||
-            (lastIoAt > 0 && System.currentTimeMillis() - lastIoAt > 7000L)
-        ) {
-            active = reconnectLocked(
-                currentDevice() ?: throw IllegalStateException("no target device")
-            )
+        if (!force) {
+            val active = session
+            if (active != null) {
+                val probe = try {
+                    active.sendAll(
+                        listOf(buildMobileStatus(currentClockForMobile())),
+                        1500,
+                        waitForPayload = false,
+                        settleMs = 20L
+                    )
+                } catch (e: Exception) {
+                    log("session probe failed: ${e.message ?: e.javaClass.simpleName}")
+                    null
+                }
+                if (probe != null && probe.isNotEmpty()) {
+                    lastIoAt = System.currentTimeMillis()
+                    return active
+                }
+                log("session probe: no reply; reconnecting…")
+            }
         }
-        return active
+        return reconnectLocked(
+            currentDevice() ?: throw IllegalStateException("no target device")
+        )
     }
 
     private fun transferBundle(
