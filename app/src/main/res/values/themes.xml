@@ -14,5 +14,7 @@
         <item name="android:paddingBottom">10dp</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:spinnerMode">dropdown</item>
+        <item name="android:popupBackground">@drawable/spinner_popup_background</item>
+        <item name="android:dropDownWidth">match_parent</item>
     </style>
 </resources>

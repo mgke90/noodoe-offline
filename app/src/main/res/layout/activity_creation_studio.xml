@@ -85,15 +85,16 @@
 
                 <Spinner
                     style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                     android:id="@+id/clockBackgroundSpinner"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp" />
+                    android:layout_height="wrap_content" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
+                    android:baselineAligned="false"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
@@ -129,6 +130,7 @@
 
                 <Spinner
                     style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                     android:id="@+id/handStyleSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -263,6 +265,7 @@
 
                 <Spinner
                     style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                     android:id="@+id/speedBackgroundSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -271,22 +274,29 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
+                    android:baselineAligned="false"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/pickSpeedBackgroundButton"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="64dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="2"
                         android:text="CUSTOM IMAGE"
                         app:cornerRadius="12dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/useSpeedBackgroundButton"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="64dp"
                         android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="2"
                         android:text="OFFICIAL BACKGROUND"
                         app:cornerRadius="12dp" />
                 </LinearLayout>
@@ -300,6 +310,7 @@
 
                 <Spinner
                     style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                     android:id="@+id/speedModeSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -327,6 +338,7 @@
 
                     <Spinner
                         style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                         android:id="@+id/unitSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -335,6 +347,7 @@
 
                     <Spinner
                         style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                         android:id="@+id/maxSpeedSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -350,6 +363,7 @@
 
                 <Spinner
                     style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                     android:id="@+id/needleStyleSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -379,6 +393,7 @@
 
                 <Spinner
                     style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                     android:id="@+id/markStyleSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -437,24 +452,24 @@
 
                     <Spinner
                         style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                         android:id="@+id/digitModeSpinner"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" />
+                        android:layout_height="wrap_content" />
 
                     <Spinner
                         style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                         android:id="@+id/digitFontSpinner"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" />
+                        android:layout_height="wrap_content" />
 
                     <Spinner
                         style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                         android:id="@+id/digitResolutionSpinner"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" />
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         android:id="@+id/digitScaleLabel"
@@ -544,6 +559,7 @@
 
                     <Spinner
                         style="@style/Widget.Noodoe.Spinner"
+                    android:layout_marginTop="8dp"
                         android:id="@+id/barStyleSpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />

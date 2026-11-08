@@ -28,6 +28,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.tabs.TabLayout
 import com.noodoe.offline.NoodoeApp
+import com.noodoe.offline.R
 import com.noodoe.offline.databinding.ActivityCreationStudioBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -1117,8 +1118,8 @@ class CreationStudioActivity : AppCompatActivity() {
     }
 
     private fun adapter(items: List<String>): ArrayAdapter<String> =
-        ArrayAdapter(this, android.R.layout.simple_spinner_item, items).also {
-            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        ArrayAdapter(this, R.layout.spinner_item, items).also {
+            it.setDropDownViewResource(R.layout.spinner_dropdown_item)
         }
 
     private fun simpleListener(onSelected: () -> Unit) =

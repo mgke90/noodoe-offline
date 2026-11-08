@@ -35,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
+import com.noodoe.offline.R
 import com.noodoe.offline.creation.CreationStudioActivity
 import com.noodoe.offline.databinding.ActivityMainBinding
 import com.noodoe.offline.notification.PhoneStateWatcher
@@ -223,10 +224,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupListeners() {
         val languageAdapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             languages.map { it.second }
         )
-        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        languageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         binding.languageSpinner.adapter = languageAdapter
         val initialLanguage = languages
             .indexOfFirst { it.first == viewModel.state.value.language }

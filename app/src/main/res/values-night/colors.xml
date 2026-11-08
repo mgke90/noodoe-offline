@@ -4,4 +4,5 @@
     <color name="spinner_stroke">#33FFFFFF</color>
     <color name="spinner_arrow">#CCFFFFFF</color>
     <color name="spinner_ripple">#22FFFFFF</color>
+    <color name="spinner_popup_surface">#2B2B2F</color>
 </resources>
