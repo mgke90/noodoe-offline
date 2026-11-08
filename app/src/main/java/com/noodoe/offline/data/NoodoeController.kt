@@ -496,7 +496,7 @@ class NoodoeController(context: Context) {
         scope.launch {
             try {
                 mutex.withLock {
-                    val active = ensureTransferSessionLocked(force = true)
+                    val active = ensureTransferSessionLocked(force = false)
                     setCreationStatus("$label: beginning")
                     val error = transferBundle(active, bundle, label)
                     if (error == null) {
@@ -529,7 +529,7 @@ class NoodoeController(context: Context) {
         scope.launch {
             try {
                 mutex.withLock {
-                    val active = ensureTransferSessionLocked(force = true)
+                    val active = ensureTransferSessionLocked(force = false)
                     setCreationStatus("$label: beginning (batched)")
                     val error = transferBundleBatched(active, bundle, label)
                     if (error == null) {

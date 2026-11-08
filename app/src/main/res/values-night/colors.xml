@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="spinner_surface">#1FFFFFFF</color>
+    <color name="spinner_stroke">#33FFFFFF</color>
+    <color name="spinner_arrow">#CCFFFFFF</color>
+    <color name="spinner_ripple">#22FFFFFF</color>
+</resources>
