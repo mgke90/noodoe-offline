@@ -65,9 +65,10 @@ class CreationStudioActivity : AppCompatActivity() {
     private var digitThickness = -1
     private var digitOffsetX = 0
     private var digitOffsetY = 0
-    private var digitHard = true
+    private var digitHard = false
 
     private var stockVerified = false
+    private var installInProgress = false
     private var updatingSpinners = false
 
     private val studioPrefs by lazy {
@@ -136,6 +137,9 @@ class CreationStudioActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 controller.state.collect { state ->
+                    if (!state.connected && installInProgress) {
+                        endInstall()
+                    }
                     if (state.creationStatus.isNotBlank()) {
                         binding.studioStatus.text = state.creationStatus
                         if (state.creationStatus.startsWith("stock clock test: installed") ||
@@ -145,6 +149,9 @@ class CreationStudioActivity : AppCompatActivity() {
                             studioPrefs.edit().putBoolean("stock_verified", true).apply()
                             applyStockGate()
                         }
+                        if (installInProgress && isTerminalCreationStatus(state.creationStatus)) {
+                            endInstall()
+                        }
                     }
                 }
             }
@@ -152,29 +159,58 @@ class CreationStudioActivity : AppCompatActivity() {
     }
 
     private fun applyStockGate() {
-        binding.clockInstallButton.isEnabled = stockVerified
-        binding.clockInstallButton.text = if (stockVerified) {
-            "INSTALL CUSTOM CLOCK"
-        } else {
-            "INSTALL CUSTOM CLOCK (stock test first)"
+        val available = !installInProgress
+        binding.minimalStockButton.isEnabled = available
+        binding.stockInstallButton.isEnabled = available
+        binding.clockInstallButton.isEnabled = stockVerified && available
+        binding.clockInstallButton.alpha = if (stockVerified && available) 1f else 0.55f
+        binding.minimalStockButton.alpha = if (available) 1f else 0.55f
+        binding.stockInstallButton.alpha = if (available) 1f else 0.55f
+        binding.clockInstallButton.text = when {
+            installInProgress -> "INSTALLING…"
+            stockVerified -> "INSTALL CUSTOM CLOCK"
+            else -> "INSTALL CUSTOM CLOCK (stock test first)"
         }
         updateSpeedInstallGate()
     }
 
     private fun updateSpeedInstallGate() {
         val analog = binding.speedModeSpinner.selectedItemPosition == 0
-        binding.speedInstallButton.isEnabled = stockVerified
+        val available = stockVerified && !installInProgress
+        binding.speedInstallButton.isEnabled = available
+        binding.speedInstallButton.alpha = if (available) 1f else 0.55f
         binding.speedInstallButton.text = when {
+            installInProgress -> "INSTALLING…"
             !stockVerified -> "INSTALL SPEEDOMETER (stock test first)"
             analog -> "INSTALL SPEEDOMETER (ANALOG)"
             else -> "INSTALL SPEEDOMETER (DIGITAL)"
         }
-        binding.digitalBatchButton.isEnabled = stockVerified && !analog
+        binding.digitalBatchButton.isEnabled = stockVerified && !analog && !installInProgress
+        binding.digitalBatchButton.alpha = if (stockVerified && !analog && !installInProgress) 1f else 0.55f
         binding.digitalBatchButton.text = if (stockVerified) {
             "INSTALL DIGITAL (BATCH FALLBACK)"
         } else {
             "DIGITAL FALLBACK (stock test first)"
         }
+    }
+
+    private fun isTerminalCreationStatus(status: String): Boolean {
+        val value = status.lowercase()
+        return value.contains("installed") ||
+                value.contains("committed") ||
+                value.contains("failed") ||
+                value.contains("not connected") ||
+                value.contains("already present")
+    }
+
+    private fun beginInstall() {
+        installInProgress = true
+        applyStockGate()
+    }
+
+    private fun endInstall() {
+        installInProgress = false
+        applyStockGate()
     }
 
     private fun setupTabs() {
@@ -446,7 +482,7 @@ class CreationStudioActivity : AppCompatActivity() {
         digitThickness = studioPrefs.getInt("digit_thickness", -1).coerceIn(-2, 6)
         digitOffsetX = studioPrefs.getInt("digit_offset_x", 0).coerceIn(-30, 30)
         digitOffsetY = studioPrefs.getInt("digit_offset_y", 0).coerceIn(-30, 30)
-        digitHard = studioPrefs.getBoolean("digit_hard", true)
+        digitHard = studioPrefs.getBoolean("digit_hard_edges", false)
 
         updatingSpinners = true
         binding.digitModeSpinner.setSelection(DigitMode.values().indexOf(digitMode), false)
@@ -473,7 +509,7 @@ class CreationStudioActivity : AppCompatActivity() {
             .putInt("digit_thickness", digitThickness)
             .putInt("digit_offset_x", digitOffsetX)
             .putInt("digit_offset_y", digitOffsetY)
-            .putBoolean("digit_hard", digitHard)
+            .putBoolean("digit_hard_edges", digitHard)
             .apply()
     }
 
@@ -934,6 +970,7 @@ class CreationStudioActivity : AppCompatActivity() {
     }
 
     private fun installClock(stock: Boolean, minimal: Boolean = false) {
+        beginInstall()
         binding.studioStatus.text = "Building clock bundle…"
         lifecycleScope.launch {
             val bundle = try {
@@ -959,6 +996,7 @@ class CreationStudioActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 binding.studioStatus.text = "Build failed: ${e.message ?: "unknown"}"
+                endInstall()
                 return@launch
             }
             binding.studioStatus.text =
@@ -997,6 +1035,7 @@ class CreationStudioActivity : AppCompatActivity() {
     }
 
     private fun installDigitalBatched() {
+        beginInstall()
         binding.studioStatus.text = "Building digital speedometer bundle…"
         lifecycleScope.launch {
             val bundle = try {
@@ -1024,6 +1063,7 @@ class CreationStudioActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 binding.studioStatus.text = "Digital build failed: ${e.message ?: "unknown"}"
+                endInstall()
                 return@launch
             }
             binding.studioStatus.text = "Starting old batched digital upload (diagnostic only)…"
@@ -1032,6 +1072,7 @@ class CreationStudioActivity : AppCompatActivity() {
     }
 
     private fun installSpeedometer() {
+        beginInstall()
         binding.studioStatus.text = "Building speedometer bundle…"
         lifecycleScope.launch {
             val bundle = try {
@@ -1059,6 +1100,7 @@ class CreationStudioActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 binding.studioStatus.text = "Speedometer build failed: ${e.message ?: "unknown"}"
+                endInstall()
                 return@launch
             }
             binding.studioStatus.text =

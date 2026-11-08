@@ -1482,6 +1482,19 @@ class NoodoeController(context: Context) {
                 it.copy(connected = true, deviceInfo = info, statusMessage = "Connected")
             }
             log("reconnected: fw ${info.firmware}, protocol ${info.protocol}")
+            try {
+                val mobile = buildMobileStatus(currentClockForMobile())
+                fresh.sendAll(
+                    listOf(mobile),
+                    2500,
+                    waitForPayload = false,
+                    settleMs = 20L
+                )
+                lastIoAt = System.currentTimeMillis()
+                log("mobile status refreshed: ${mobileStatusDescription()}")
+            } catch (e: Exception) {
+                log("mobile status refresh failed: ${e.message ?: e.javaClass.simpleName}")
+            }
             return fresh
         } catch (e: Exception) {
             fresh.close()

@@ -49,7 +49,7 @@ data class DigitalDigitStyle(
     val thickness: Int = 0,
     val offsetXPercent: Int = 0,
     val offsetYPercent: Int = 0,
-    val hardEdges: Boolean = true
+    val hardEdges: Boolean = false
 ) {
     fun normalized(): DigitalDigitStyle = copy(
         sourceHeight = nearestHeight(sourceHeight),
@@ -79,7 +79,7 @@ data class DigitalDigitStyle(
             sourceHeight = 90,
             scalePercent = 80,
             thickness = -1,
-            hardEdges = true
+            hardEdges = false
         )
 
         fun nearestHeight(value: Int): Int =

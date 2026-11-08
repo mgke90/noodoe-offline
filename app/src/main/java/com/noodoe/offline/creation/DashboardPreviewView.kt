@@ -54,7 +54,6 @@ class DashboardPreviewView @JvmOverloads constructor(
     private var needleBitmap: Bitmap? = null
     private var centerBitmap: Bitmap? = null
     private var barBitmap: Bitmap? = null
-    private val digitBitmaps = mutableMapOf<Char, Bitmap>()
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
 
@@ -119,7 +118,6 @@ class DashboardPreviewView @JvmOverloads constructor(
 
     fun setSpeedValue(value: Int) {
         speedValue = value.coerceIn(0, maxSpeed)
-        rebuildDigits()
         invalidate()
     }
 
@@ -267,56 +265,27 @@ class DashboardPreviewView @JvmOverloads constructor(
                 canvas.drawBitmap(center, null, RectF(147f, 147f, 333f, 333f), paint)
             }
         } else {
-            // Use the exact generated glyph images so the preview follows the
-            // digit tuning. 118 px approximates the dashboard's widget height.
-            val digits = speedValue.toString()
-            val previewHeight = 118f
-            val widths = digits.map { ch ->
-                val bitmap = digitBitmaps[ch]
-                if (bitmap == null) 0f else bitmap.width * previewHeight / bitmap.height
-            }
-            val totalWidth = widths.sum()
-            var x = 240f - totalWidth / 2f
-            val top = 240f - previewHeight / 2f + 10f
-            paint.reset()
-            paint.isAntiAlias = true
-            paint.isFilterBitmap = true
-            digits.forEachIndexed { index, ch ->
-                val bitmap = digitBitmaps[ch]
-                if (bitmap != null) {
-                    val w = widths[index]
-                    canvas.drawBitmap(
-                        bitmap,
-                        null,
-                        RectF(x, top, x + w, top + previewHeight),
-                        paint
-                    )
-                }
-                x += widths[index]
+            // Cosmetic preview only: always draw smooth Android text here.
+            // The installed bundle still uses the selected stock/text mode.
+            val scale = digitStyle.scalePercent / 100f
+            val typeface = if (digitStyle.mode == DigitMode.STOCK) {
+                Typeface.create("sans-serif", Typeface.BOLD)
+            } else {
+                Typeface.create(digitStyle.font.family, digitStyle.font.style)
             }
             paint.reset()
             paint.isAntiAlias = true
+            paint.isDither = true
             paint.color = digitalColor
             paint.textAlign = Paint.Align.CENTER
-            paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
-            paint.textSize = 24f
-            canvas.drawText(if (unit == "mph") "mph" else "km/h", 240f, 330f, paint)
-        }
-    }
-
-    private fun rebuildDigits() {
-        digitBitmaps.values.forEach { it.recycle() }
-        digitBitmaps.clear()
-        if (analog) return
-        for (ch in speedValue.toString()) {
-            if (ch.isDigit() && !digitBitmaps.containsKey(ch)) {
-                digitBitmaps[ch] = DigitalDigitRenderer.render(
-                    context,
-                    ch,
-                    digitStyle,
-                    digitalColor
-                )
-            }
+            paint.typeface = typeface
+            paint.textSize = 118f * scale
+            val x = 240f + digitStyle.offsetXPercent * 1.2f
+            val y = 292f + digitStyle.offsetYPercent * 1.2f
+            canvas.drawText(speedValue.toString(), x, y, paint)
+            paint.typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+            paint.textSize = 27f
+            canvas.drawText(if (unit == "mph") "mph" else "km/h", 240f, 336f, paint)
         }
     }
 
@@ -345,8 +314,6 @@ class DashboardPreviewView @JvmOverloads constructor(
         mark?.recycle()
 
         if (analog) {
-            digitBitmaps.values.forEach { it.recycle() }
-            digitBitmaps.clear()
             needleBitmap = CreationAssets.speedNeedle(context, needleStyle)?.let {
                 val tinted = CreationAssets.tint(it, needleColor)
                 it.recycle()
@@ -357,8 +324,6 @@ class DashboardPreviewView @JvmOverloads constructor(
                 it.recycle()
                 tinted
             }
-        } else {
-            rebuildDigits()
         }
         if (!analog && showBar) {
             barBitmap = CreationAssets.speedBar(context, barStyle)?.let {
@@ -378,8 +343,6 @@ class DashboardPreviewView @JvmOverloads constructor(
         centerBitmap = null
         barBitmap?.recycle()
         barBitmap = null
-        digitBitmaps.values.forEach { it.recycle() }
-        digitBitmaps.clear()
         super.onDetachedFromWindow()
     }
 }
