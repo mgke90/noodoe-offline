@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.6.8 — 2026-11-08
+
+Stable Dashboard Studio and transfer update.
+
+### Dashboard Studio
+
+- Added in-app digital speedometer digit tuning: stock or text glyph mode,
+  font selection, 90 px digit resolution, size, thickness, and X/Y offsets.
+- The in-app preview is smooth and cosmetic only; the installed dashboard
+  glyph uses the selected stock or text mode.
+- Hard 1-bit digit edges are off by default.
+- Restyled dropdowns for dark and light themes: solid full-width open list,
+  larger touch targets, and tighter closed-field spacing.
+- Clock and speedometer install buttons now share the same height and
+  alignment.
+- Install buttons disable immediately when pressed and re-enable only after
+  that install succeeds or fails.
+
+### Connection
+
+- Probe the live session with `MOBILE_STATUS` before a transfer instead of
+  reconnecting after an idle period. Healthy sessions are reused, avoiding a
+  needless reconnect.
+
+### Verification
+
+- 48 unit tests passing.
+
 ## 0.6.0 — 2026-11-07
 
 First stable release.

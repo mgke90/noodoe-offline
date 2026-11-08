@@ -12,7 +12,7 @@ dependency.
 > KYMCO or Noodoe. Use at your own risk. See [NOTICE.md](NOTICE.md) for the
 > bundled official assets and trademark information.
 
-Package: `com.noodoe.offline` · version 0.6.0 · Android 6.0+ (minSdk 23)
+Package: `com.noodoe.offline` · version 0.6.8 · Android 6.0+ (minSdk 23)
 
 ## What it does
 
@@ -29,10 +29,17 @@ Package: `com.noodoe.offline` · version 0.6.0 · Android 6.0+ (minSdk 23)
 - **Dashboard Studio** (0.6.0): local clock and speedometer creation using the
   official SR1.5 Pack B assets, a live 480×480 preview, and installation over
   Bluetooth with the stock `0x0A`/`0x0B`/`0x0D` transfer sequence.
-- 0.6.0 in-flight transfer engine: up to ten active files, asynchronous
+- In-flight transfer engine: up to ten active files, asynchronous
   start/finish handling, and the official continue/done commands.
 - Native **64×90** stock speedometer digits instead of upscaled low-resolution
   glyphs.
+- Digital speedometer tuning: stock or text glyph mode, font, 90 px digit
+  resolution, size, thickness, and X/Y offsets, with a smooth in-app preview
+  and optional 1-bit edges (off by default).
+- Theme-aware, full-width Dashboard Studio dropdowns with equal-height clock
+  and speedometer buttons.
+- Install buttons disable immediately and re-enable only when that install
+  succeeds or fails.
 - Safe diagnostic logs with new/share/share-all/clear.
 - No storage permission; logs stay in the app's own external folder.
 
@@ -51,7 +58,7 @@ Package: `com.noodoe.offline` · version 0.6.0 · Android 6.0+ (minSdk 23)
 1. Download the APK from [Releases](../../releases/latest).
 2. Install it on the phone:
    ```sh
-   adb install -r NoodoeOffline-0.6.0-release.apk
+   adb install -r NoodoeOffline-0.6.8-release.apk
    ```
    or open the APK on the phone and allow installation from that source.
 3. If you previously installed a debug build, uninstall it once. Release and
@@ -102,7 +109,7 @@ tests with `./gradlew testDebugUnitTest` or `gradlew.bat testDebugUnitTest`.
 
 ## Status and limitations
 
-- 0.6.0 is the stable release. It includes pairing, status, clock,
+- 0.6.8 is the stable release. It includes pairing, status, clock,
   notifications, preferences, and the stock clock and speedometer
   installations.
 - Dashboard support varies by model, firmware, and installed resource pack.
